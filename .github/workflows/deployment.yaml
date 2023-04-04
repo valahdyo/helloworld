@@ -42,3 +42,26 @@ jobs:
           docker build -t $AWS_REPOSITORY:$IMAGE_TAG .
           docker tag $AWS_REPOSITORY:$IMAGE_TAG ${{ secrets.AWS_ECR }}/$AWS_REPOSITORY:$IMAGE_TAG
           docker push ${{ secrets.AWS_ECR }}/$AWS_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::${{ secrets.AWS_ECR }}/$AWS_REPOSITORY:$IMAGE_TAG"
+      
+      - name: Download Task Definiton
+        run: |
+          aws ecs describe-task-definition --task-definition helloworldtask \
+          --query taskDefinition > task-definition.json
+
+      - name: Read Task Definiton
+        run: cat task-definition.json
+
+      - name: Update task-definition.json
+        run: echo "`jq '.containerDefinitions[0].image = "${{ steps.build-image.outputs.image }}"' task-definition.json`" > task-definition.json
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          service: helloworldservice
+          cluster: helloworldcluster
+
+      - name: Force redeploy
+        run: |
+          aws ecs update-service --cluster helloworldcluster --service helloworldservice --force-new-deployment
