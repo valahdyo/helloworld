@@ -1,0 +1,26 @@
+name: Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+     - uses: actions/checkout@v2
+     - uses: actions/setup-node@v2
+     - name: Install Dependecies
+       run: npm install
+     - name: Build App  
+       run: npm run build
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+     - uses: actions/checkout@v2
+     - uses: actions/setup-node@v2
+     - name: Install Dependecies
+       run: npm install
+     - name: Run Unit Tests
+       run: npm run test
