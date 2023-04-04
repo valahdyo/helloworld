@@ -46,7 +46,7 @@ jobs:
       
       - name: Download Task Definiton
         run: |
-          aws ecs describe-task-definition --task-definition helloworldtask \
+          aws ecs describe-task-definition --task-definition hellowordtask \
           --query taskDefinition > task-definition.json
 
       - name: Read Task Definiton
